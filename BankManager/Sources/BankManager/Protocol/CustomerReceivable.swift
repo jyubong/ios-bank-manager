@@ -8,6 +8,7 @@
 
 public protocol CustomerReceivable {
     associatedtype Customer: CustomerNumbering
+    var charge: Banking { get }
     
     func receive(customer: Customer)
 }

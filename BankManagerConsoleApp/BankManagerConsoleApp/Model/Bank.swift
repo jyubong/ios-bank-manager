@@ -10,8 +10,22 @@ import BankManager
 
 struct Bank: BankBusinesable {
     private let bankManager = BankManager<BankClerk>()
-    private let bankClerk = BankClerk()
+    private let bankClerks = [Banking.deposit: BankClerk(charge: .deposit), Banking.loan: BankClerk(charge: .loan)]
     private let customerNumber: UInt
+    private let depositCounter: OperationQueue = {
+        let queue = OperationQueue()
+        queue.maxConcurrentOperationCount = 2
+
+        return queue
+    }()
+    
+    private let loanBankCounter: OperationQueue = {
+        let queue = OperationQueue()
+        queue.maxConcurrentOperationCount = 1
+        
+        return queue
+    }()
+
     
     init(customerNumber: UInt) {
         self.customerNumber = customerNumber
@@ -22,7 +36,9 @@ struct Bank: BankBusinesable {
         
         let startTime = CFAbsoluteTimeGetCurrent()
         
-        bankManager.assignCustomer(to: bankClerk)
+        bankManager.assignCustomer(depositCounter: depositCounter, loanCounter: loanBankCounter, bankClerks: bankClerks)
+        depositCounter.waitUntilAllOperationsAreFinished()
+        loanBankCounter.waitUntilAllOperationsAreFinished()
         
         let finishTime = CFAbsoluteTimeGetCurrent() - startTime
         let time = String(format: "%.2f", finishTime)

@@ -9,9 +9,18 @@ public struct BankManager<BankClerk: CustomerReceivable> {
         customerQueue.enqueue(customer)
     }
     
-    public func assignCustomer(to bankClerk: BankClerk) {
-        while let customer = customerQueue.dequeue() as? BankClerk.Customer {
-            bankClerk.receive(customer: customer)
+    public func assignCustomer(depositCounter: OperationQueue, loanCounter: OperationQueue, bankClerks: [Banking: BankClerk]) {
+        while let customer = customerQueue.dequeue() as? BankClerk.Customer, let banking = customer.banking {
+            let operation = BlockOperation {
+                bankClerks[banking]?.receive(customer: customer)
+            }
+        
+            switch banking {
+            case .deposit:
+                depositCounter.addOperation(operation)
+            case .loan:
+                loanCounter.addOperation(operation)
+            }
         }
     }
 }
