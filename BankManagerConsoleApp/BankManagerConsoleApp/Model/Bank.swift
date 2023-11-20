@@ -10,8 +10,8 @@ import BankManager
 
 struct Bank: BankBusinesable {
     private let bankManager = BankManager<BankClerk>()
-    private let bankClerks = [Banking.deposit: BankClerk(charge: .deposit), Banking.loan: BankClerk(charge: .loan)]
     private let customerNumber: UInt
+    private let bankClerks = [Banking.deposit: BankClerk(charge: .deposit), Banking.loan: BankClerk(charge: .loan)]
     private let depositCounter: OperationQueue = {
         let queue = OperationQueue()
         queue.maxConcurrentOperationCount = 2
